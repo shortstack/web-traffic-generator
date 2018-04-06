@@ -56,6 +56,7 @@ python gen.py
 
 ```
 export ROOTURLS="https://digg.com/ https://www.yahoo.com https://www.reddit.com http://www.cnn.com http://www.ebay.com https://en.wikipedia.org/wiki/Main_Page https://austin.craigslist.org/"
+cd web-traffic-generator
 docker build -t traffic .
 docker run -d -e "ROOTURLS=$ROOTURLS" --name traffic traffic
 ```
