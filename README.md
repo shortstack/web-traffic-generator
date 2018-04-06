@@ -1,10 +1,10 @@
 # web-traffic-generator
-A quick and dirty HTTP/S "organic" traffic generator. 
+A quick and dirty HTTP/S "organic" traffic generator.
 
 ## About
 Just a simple (poorly written) Python script that aimlessly "browses" the internet by starting at pre-defined `rootURLs` and randomly "clicking" links on pages until the pre-defined `clickDepth` is met.
 
-I created this as a noise generator to use for an Incident Response / Network Defense simulation. The only issue is that my simulation environment uses multiple IDS/IPS/NGFW devices that will not pass and log simple TCPreplays of canned traffic. I needed the traffic to be as organic as possible, essentially mimicking real users browsing the web. 
+I created this as a noise generator to use for an Incident Response / Network Defense simulation. The only issue is that my simulation environment uses multiple IDS/IPS/NGFW devices that will not pass and log simple TCPreplays of canned traffic. I needed the traffic to be as organic as possible, essentially mimicking real users browsing the web.
 
 Tested on Ubuntu 14.04 & 16.04 minimal, but should work on any system with Python installed.
 
@@ -30,25 +30,42 @@ About as simple as it gets...
 
 - `blacklist = [".gif", "intent/tweet", "badlink", etc...]` A blacklist of strings that we check every link against. If the link contains any of the strings in this list, it's discarded. Useful to avoid things that are not traffic-generator friendly like "Tweet this!" links or links to image files.
 
-- `userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3).......'` You guessed it, the user-agent our headless browser hands over to the web server. You can probably leave it set to the default, but feel free to change it. I would strongly suggest using a common/valid one or else you'll likely get rate-limited quick. 
+- `userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3).......'` You guessed it, the user-agent our headless browser hands over to the web server. You can probably leave it set to the default, but feel free to change it. I would strongly suggest using a common/valid one or else you'll likely get rate-limited quick.
 
 ## Dependencies
-Only thing you need and *might* not have is `requests`. Grab it with 
+Only thing you need and *might* not have is `requests`. Grab it with
 ```
 sudo pip install requests
 ```
 
 ## Usage
-Create your config file first: 
+
+### Run standalone
+
+Create your config file first:
 ```
 cp config.py.template config.py
 ```
 
-Run the generator: 
+Run the generator:
 ```
 python gen.py
 ```
 
+### Run in Docker
+
+```
+export ROOTURLS="https://digg.com/ https://www.yahoo.com https://www.reddit.com http://www.cnn.com http://www.ebay.com https://en.wikipedia.org/wiki/Main_Page https://austin.craigslist.org/"
+docker build -t traffic .
+docker run -d -e "ROOTURLS=$ROOTURLS" --name traffic traffic
+```
+
+To see logs:
+
+```
+docker exec -it traffic bash
+tail -f /opt/traffic.log
+```
 
 ## Troubleshooting and debugging
 To get more deets on what is happening under the hood, change the Debug variable in `config.py` from `False` to `True`. This provides the following output...
@@ -126,4 +143,4 @@ Sleeping for 7 seconds...
 ^CException on URL: http://shop.nautil.us/my-test/  -- removing from list and trying again!
 ```
 
-The last URL attempted provides a good example of when a particular URL throws an error. We simply add it to our `config.blacklist` array in memory, and continue browsing. This prevents a known bad URL from returning to the queue. 
+The last URL attempted provides a good example of when a particular URL throws an error. We simply add it to our `config.blacklist` array in memory, and continue browsing. This prevents a known bad URL from returning to the queue.
